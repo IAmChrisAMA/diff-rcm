@@ -5,7 +5,7 @@
 #include "diff.h"
 #include "pa.h"
 
-// ========================================================================== //
+// ================================================================ //
 
 void init(int argc, const char* argv[]);
 void setoption(const char* arg, const char* s, const char* t, int* value);
@@ -21,23 +21,25 @@ int sideside(const char* filename1, const char* filename2);
 void quiet(const char* filename1, const char* filename2);
 void loud(const char* filename1, const char* filename2);
 
-// ================================================================= //
+// ================================================================ //
 
 int main(int argc, const char* argv[]) {
 
   init(--argc, ++argv);
   loadfiles(files[0], files[1]);
 
-  if (!showcontext && !showunified && !showsidebyside && !showleftcolumn) { normal(files[0], files[1]); }
-  if (showsidebyside)                                                     { sideside(files[0], files[1]); printf("\n"); }
-  if (showbrief)                                                          { quiet(files[0], files[1]); printf("\n"); }
-  if (report_identical)                                                   { loud(files[0], files[1]); printf("\n"); }
+  if (**argv != '-')      { normal(files[0], files[1]); printf("\n"); }
+
+  //if (!diffnormal)         { normal(files[0], files[1]); printf("\n"); }
+  if (showsidebyside)     { sideside(files[0], files[1]); printf("\n"); }
+  if (showbrief)          { quiet(files[0], files[1]); printf("\n"); }
+  if (report_identical)   { loud(files[0], files[1]); printf("\n"); }
 
   return 0;
 
 }
 
-// =============================================================== //
+// ================================================================ //
 
 void init(int argc, const char* argv[]) {
 
@@ -58,7 +60,6 @@ void init(int argc, const char* argv[]) {
 
     if (arg[0] != '-') {
       if (cnt == 2) {
-        fprintf(stderr, "apologies, this version of diff only handles two files\n");
         fprintf(stderr, "Usage: ./diff [options] file1 file2\n");
         exit(TOOMANYFILES_ERROR);
       } else { files[cnt++] = arg; }
@@ -75,6 +76,7 @@ void init(int argc, const char* argv[]) {
         (diffnormal || showcontext || showunified)) ||
         (showcontext && showunified) || (diffnormal &&
         (showcontext || showunified)))                   { diff_output_conflict_error(); }
+
 }
 
 void setoption(const char* arg, const char* s, const char* t, int* value) {
@@ -150,6 +152,6 @@ int sideside(const char* filename1, const char* filename2) {
   return 0;
 }
 void quiet(const char* filename1, const char* filename2) { if (pa_equal(p, q) == 0) { printf("The files are not equal.\n"); } }
-void loud(const char* filename1, const char* filename2) { if (pa_equal(p, q) == 1) { printf("The files are equal.\n"); } }
+void loud(const char* filename1, const char* filename2) { if (pa_equal(p, q) != 0) { printf("The files are equal.\n"); } }
 
-// ====================================================== //
+// ================================================================ //
