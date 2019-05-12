@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "diff.h"
 
 // ========================================================================== //
@@ -17,8 +21,11 @@ void printright(const char* right);
 FILE* openfile(const char* filename, const char* openflags);
 //char* yesorno(int condition);
 
-void prereq(const char* argv[]);
-void end(FILE *fin1, FILE *fin2);
+void init(int argc, const char* argv[]);
+void setoption(const char* arg, const char* s, const char* t, int* value);
+void diff_output_conflict_error(void);
+
+void loadfiles(const char* filename1, const char* filename2);
 
 void version();
 void todo();
@@ -26,51 +33,87 @@ void todo();
 void quiet(const char* argv[]);
 void loud(const char* argv[]);
 int sideside(const char* argv[]);
-int normal(const char* argv[]);
+int normal(const char* filename1, const char* filename2);
 
-// ========================================================================== //
+// ================================================================= //
 
 int main(int argc, const char* argv[]) {
 
-  if (argc != 3 && (*argv)[0] == '-') { fprintf(stderr, "Usage: ./diff file1 file2\n"); exit(ARGC_ERROR); }
-  if (argc < 3)                       { fprintf(stderr, "Usage: ./diff file1 file2\n"); exit(ARGC_ERROR); }
-  if (argc == 3)                      { prereq(argv); normal(argv); return 0; }
-
-  while (*++argv)
-    switch ((*argv)[1]) {
-      default:  break;
-      case 'v': version(); return 0;         // 100%  implemented (unless I want to enhance)
-      case 't': todo(); return 0;            // Only for me. To be deprecated later.
-      case 'q': prereq(argv); quiet(argv); break;       // 100% implemented
-      case 'y': prereq(argv); sideside(argv); break;    // 50%   implemented
-      case 'i': printf("i done\n"); break;
-      case 'c': printf("c done\n"); break;
-      case 'u': printf("u done\n"); break;
-      case 's': prereq(argv); loud(argv); break;
-    }
+  init(--argc, ++argv);
+  loadfiles(files[0], files[1]);
+  if (!showcontext && !showunified && !showsidebyside && !showleftcolumn) { normal(files[0], files[1]); }
 
   return 0;
 }
 
-// ====================================================== //
+// =============================================================== //
 
-void prereq(const char* argv[]) {
-  fin1 = openfile(argv[1], "r");
-  fin2 = openfile(argv[2], "r");
+void init(int argc, const char* argv[]) {
+  int count = 0;
+  const char* files[2] = { NULL, NULL };
 
+  while (argc-- > 0) {
+    const char* arg = *argv;
+
+    setoption(arg, "-v",                        "--version",                  &showversion);
+    setoption(arg, "-q",                        "--brief",                    &showbrief);
+    setoption(arg, "-i",                        "--ignore-case",              &ignorecase);
+    setoption(arg, "-s",                        "--report-identical-files",   &report_identical);
+    setoption(arg, "--normal",                  NULL,                         &diffnormal);
+    setoption(arg, "-y",                        "--side-by-side",             &showsidebyside);
+    setoption(arg, "--left-column",             NULL,                         &showleftcolumn);
+    setoption(arg, "--suppress-common-lines",   NULL,                         &suppresscommon);
+    setoption(arg, "-c",                        "--context",                  &showcontext);
+    setoption(arg, "-u",                        "showunified",                &showunified);
+    setoption(arg, "-h",                        "--help",                     &showhelp);
+
+    if (arg[0] != '-') {
+      if (cnt == 2) {
+        fprintf(stderr, "apologies, this version of diff only handles two files\n");
+        fprintf(stderr, "Usage: ./diff [options] file1 file2\n");
+        exit(TOOMANYFILES_ERROR);
+      } else { files[cnt++] = arg; }
+    }
+    ++argv;
+  }
+
+  if (showversion)                                       { version();  exit(0); }
+
+  if (!showcontext && !showunified &&
+      !showsidebyside && !showleftcolumn)                { diffnormal = 1; }
+
+  if (((showsidebyside || showleftcolumn) &&
+        (diffnormal || showcontext || showunified)) ||
+        (showcontext && showunified) || (diffnormal &&
+        (showcontext || showunified)))                   { diff_output_conflict_error(); }
+}
+
+void setoption(const char* arg, const char* s, const char* t, int* value) {
+  if ((strcmp(arg, s) == 0) || ((t != NULL && strcmp(arg, t) == 0))) { *value = 1; }
+}
+void diff_output_conflict_error(void) {
+
+  fprintf(stderr, "diff: conflicting output style options\n");
+  fprintf(stderr, "diff: Try `diff --help' for more information.)\n");
+  exit(CONFLICTING_OUTPUT_OPTIONS);
+
+}
+
+void loadfiles(const char* filename1, const char* filename2) {
   memset(buf, 0, sizeof(buf));
   memset(strings1, 0, sizeof(strings1));
   memset(strings2, 0, sizeof(strings2));
 
-  while (!feof(fin1) && fgets(buf, BUFLEN, fin1) != NULL) { strings1[count1++] = strdup(buf); }
-  while (!feof(fin2) && fgets(buf, BUFLEN, fin2) != NULL) { strings2[count2++] = strdup(buf); }
+  FILE *fin1 = openfile(filename1, "r");
+  FILE *fin2 = openfile(filename2, "r");
+
+  while (!feof(fin1) && fgets(buf, BUFLEN, fin1) != NULL) { strings1[count1++] = strdup(buf); }  fclose(fin1);
+  while (!feof(fin2) && fgets(buf, BUFLEN, fin2) != NULL) { strings2[count2++] = strdup(buf); }  fclose(fin2);
 
   p = pa_first(strings1, count1);
   q = pa_first(strings2, count2);
-}
-void end(FILE* fin1, FILE* fin2) {
-  fclose(fin1);
-  fclose(fin2);
+
+  int foundmatch = 0;
 }
 
 void version() {
@@ -89,11 +132,11 @@ void todo() {
   printf("\nTODO: check line by line in a pagraph, using '|' for differences");
   printf("\nTODO: this starter code does not yet handle printing all of fin1's pagraphs.");
   printf("\nTODO: handle the rest of diff's options");
-  printf("\nTODO: fix standard printing with no parameters");
-  printf("\nTODO: implement multiple types of parameters\n");
+  printf("\nTODO: fix standard printing with no pameters");
+  printf("\nTODO: implement multiple types of pameters\n");
 }
 
-int normal(const char* argv[]) {
+int normal(const char* filename1, const char* filename2) {
 
   printf("\nTHIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
   printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n\n\n");
@@ -197,7 +240,3 @@ FILE* openfile(const char* filename, const char* openflags) {
   if ((f = fopen(filename, openflags)) == NULL) {  printf("can't open '%s'\n", filename);  exit(1); }
   return f;
 }
-
-// ============================ LEFTOVERS ============================ //
-
-// if ((*argv)[0] == '-')
