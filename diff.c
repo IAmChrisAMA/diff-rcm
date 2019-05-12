@@ -165,13 +165,3 @@ void loud(const char* filename1, const char* filename2) {
   else { normal(files[0], files[1]); }
 
 }
-
-// ================================================================ //
-
-/*
-    TODO: check line by line in a pagraph, using '|' for differences");
-    TODO: this starter code does not yet handle printing all of fin1's pagraphs.");
-    TODO: handle the rest of diff's options");
-    TODO: fix standard printing with no pameters");
-    TODO: implement multiple types of pameters\n");
-*/
