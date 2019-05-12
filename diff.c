@@ -28,13 +28,16 @@ int main(int argc, const char* argv[]) {
   init(--argc, ++argv);
   loadfiles(files[0], files[1]);
 
-  if (**argv != '-')      { normal(files[0], files[1]); printf("\n"); }
+  if (**argv != '-')      { normal(files[0], files[1]); }
+  if (argc < 3)           { printf("Usage: ./diff [options] file1 file2\n"); }
 
   //if (!diffnormal)         { normal(files[0], files[1]); printf("\n"); }
-  if (showsidebyside)     { sideside(files[0], files[1]); printf("\n"); }
-  if (showbrief)          { quiet(files[0], files[1]); printf("\n"); }
-  if (report_identical)   { loud(files[0], files[1]); printf("\n"); }
-
+  if (showsidebyside)     { sideside(files[0], files[1]); }
+  if (showbrief)          { quiet(files[0], files[1]); }
+  if (report_identical)   { loud(files[0], files[1]); }
+  if (!showversion && !showbrief && !ignorecase && !report_identical &&
+      !diffnormal && !showsidebyside && !showleftcolumn && !suppresscommon &&
+      !showcontext && !showunified && !showhelp) { printf("Usage: ./diff [options] file1 file2\n"); }
   return 0;
 
 }
@@ -110,16 +113,24 @@ void loadfiles(const char* filename1, const char* filename2) {
 }
 
 void version() {
-  printf("\n     _ _  __  __                            \n");
-  printf("  __| (_)/ _|/ _|      _ __ ___ _ __ ___    \n");
-  printf(" / _` | | |_| |_ _____| '__/ __| '_ ` _ \\   \n");
-  printf("| (_| | |  _|  _|_____| | | (__| | | | | |  \n");
-  printf(" \\__,_|_|_| |_|       |_|  \\___|_| |_| |_|  \n\n");
-  printf("------------------------------------------\n\n");
-  printf("v0.4 alpha | Quoth the anti-Raven. Alwaysmore.\n\n");
+  // printf("\n     _ _  __  __                            \n");
+  // printf("  __| (_)/ _|/ _|      _ __ ___ _ __ ___    \n");
+  // printf(" / _` | | |_| |_ _____| '__/ __| '_ ` _ \\   \n");
+  // printf("| (_| | |  _|  _|_____| | | (__| | | | | |  \n");
+  // printf(" \\__,_|_|_| |_|       |_|  \\___|_| |_| |_|  \n\n");
+  printf("\n\n       ██ ██   ████   ████                                     \n");
+  printf("      ░██░░   ░██░   ░██░                                        \n");
+  printf("      ░██ ██ ██████ ██████        ██████  █████  ██████████     \n");
+  printf("   ██████░██░░░██░ ░░░██░  █████░ ░██░░█ ██░░░██░░██░░██░░██   \n");
+  printf("  ██░░░██░██  ░██    ░██  ░░░░░   ░██ ░ ░██  ░░  ░██ ░██ ░██    \n");
+  printf(" ░██  ░██░██  ░██    ░██          ░██   ░██   ██ ░██ ░██ ░██     \n");
+  printf(" ░░██████░██  ░██    ░██         ░███   ░░█████  ███ ░██ ░██    \n");
+  printf("  ░░░░░░ ░░   ░░     ░░          ░░░     ░░░░░  ░░░  ░░  ░░      \n\n");
+  printf("\n");
+  printf("\tv0.5 alpha | Smoking is bad for your health.\n\n");
   printf("Copyright (C) 2019 | All Rights Reserved.\n");
-  printf("Any unauthorized use or re-distribution (before May 19, 2019) of this code is STRICTLY prohibited.\n\n");
-  printf("Written by: Chris Nutter; William McCarthy; Rasputin\n\n");
+  printf("Any unauthorized use or re-distribution of this code is permitted.\n\n");
+  printf("\tChris Nutter\tWilliam McCarthy     Rasputin\n\n\n");
 }
 void todo() {
   printf("\nTODO: check line by line in a pagraph, using '|' for differences");
@@ -151,7 +162,12 @@ int sideside(const char* filename1, const char* filename2) {
 
   return 0;
 }
-void quiet(const char* filename1, const char* filename2) { if (pa_equal(p, q) == 0) { printf("The files are not equal.\n"); } }
-void loud(const char* filename1, const char* filename2) { if (pa_equal(p, q) != 0) { printf("The files are equal.\n"); } }
+void quiet(const char* filename1, const char* filename2) { if (pa_equal(p, q) == 0) { printf("The files are not the same.\n"); } }
+void loud(const char* filename1, const char* filename2) {
+
+  if (pa_equal(p, q) != 0) { printf("The files are equal.\n"); }
+  else { normal(files[0], files[1]); }
+
+}
 
 // ================================================================ //
