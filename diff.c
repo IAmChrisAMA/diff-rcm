@@ -3,23 +3,9 @@
 #include <string.h>
 
 #include "diff.h"
+#include "pa.h"
 
 // ========================================================================== //
-
-pa* pa_make(char* base[], int size, int start, int stop);
-pa* pa_first(char* base[], int size);
-pa* pa_next(pa* p);
-size_t pa_filesize(pa* p);
-size_t pa_size(pa* p);
-char** pa_base(pa* p);
-char* pa_info(pa* p);
-int   pa_equal(pa* p, pa* q);
-void pa_print(pa* p, void (*fp)(const char*));
-void printboth(const char* left_right);
-void printleft(const char* left);
-void printright(const char* right);
-FILE* openfile(const char* filename, const char* openflags);
-//char* yesorno(int condition);
 
 void init(int argc, const char* argv[]);
 void setoption(const char* arg, const char* s, const char* t, int* value);
@@ -30,10 +16,10 @@ void loadfiles(const char* filename1, const char* filename2);
 void version();
 void todo();
 
-void quiet(const char* argv[]);
-void loud(const char* argv[]);
-int sideside(const char* argv[]);
 int normal(const char* filename1, const char* filename2);
+int sideside(const char* filename1, const char* filename2);
+void quiet(const char* filename1, const char* filename2);
+void loud(const char* filename1, const char* filename2);
 
 // ================================================================= //
 
@@ -41,16 +27,19 @@ int main(int argc, const char* argv[]) {
 
   init(--argc, ++argv);
   loadfiles(files[0], files[1]);
+
   if (!showcontext && !showunified && !showsidebyside && !showleftcolumn) { normal(files[0], files[1]); }
+  if (showsidebyside)                                                     { sideside(files[0], files[1]); printf("\n"); }
+  if (showbrief)                                                          { quiet(files[0], files[1]); printf("\n"); }
+  if (report_identical)                                                   { loud(files[0], files[1]); printf("\n"); }
 
   return 0;
+
 }
 
 // =============================================================== //
 
 void init(int argc, const char* argv[]) {
-  int count = 0;
-  const char* files[2] = { NULL, NULL };
 
   while (argc-- > 0) {
     const char* arg = *argv;
@@ -100,6 +89,7 @@ void diff_output_conflict_error(void) {
 }
 
 void loadfiles(const char* filename1, const char* filename2) {
+
   memset(buf, 0, sizeof(buf));
   memset(strings1, 0, sizeof(strings1));
   memset(strings2, 0, sizeof(strings2));
@@ -114,6 +104,7 @@ void loadfiles(const char* filename1, const char* filename2) {
   q = pa_first(strings2, count2);
 
   int foundmatch = 0;
+
 }
 
 void version() {
@@ -149,7 +140,7 @@ int normal(const char* filename1, const char* filename2) {
 
   return 0;
 }
-int sideside(const char* argv[]) {
+int sideside(const char* filename1, const char* filename2) {
 
   if (pa_equal(p, q)) { pa_print(p, printboth); return 0; }
   pa_print(q, printright);
@@ -158,85 +149,7 @@ int sideside(const char* argv[]) {
 
   return 0;
 }
-void quiet(const char* argv[]) { if (pa_equal(p, q) == 0) { printf("The files are not equal.\n"); } }
-void loud(const char* argv[]) { if (pa_equal(p, q) == 1) { printf("The files are equal.\n"); } }
-
-int hash(const char* s) {
-    unsigned long code = 0;
-    while (*s != '\0') { code = code *31 + *s++; }
-    return code % HASHLEN;
-}
+void quiet(const char* filename1, const char* filename2) { if (pa_equal(p, q) == 0) { printf("The files are not equal.\n"); } }
+void loud(const char* filename1, const char* filename2) { if (pa_equal(p, q) == 1) { printf("The files are equal.\n"); } }
 
 // ====================================================== //
-
-pa* pa_make(char* base[], int filesize, int start, int stop) {
-  pa* p = (pa*) malloc(sizeof(pa));
-  p->base = base;
-  p->filesize = filesize;
-  p->start = start;
-  p->stop = stop;
-
-  return p;
-}
-pa* pa_first(char* base[], int size) {
-  pa* p = pa_make(base, size, 0, -1);
-  return pa_next(p);
-}
-pa* pa_next(pa* p) {
-  if (p->stop == p->filesize) { return NULL; }
-
-  int i;
-  pa* pnew = pa_make(p->base, p->filesize, p->stop + 1, p->stop + 1);
-  for (i = pnew->start; i < p->filesize && strcmp(p->base[i], "\n") != 0; ++i) { }
-  pnew->stop = i;
-
-  return pnew;
-}
-void pa_print(pa* p, void (*fp)(const char*)) {
-  if (p == NULL) { return; }
-  for (int i = p->start; i <= p->stop && i != p->filesize; ++i) { fp(p->base[i]); }
-}
-void pa_destroy(pa* p) { free(p); }
-void printleft(const char* left) {
-  char buf[BUFLEN];
-
-  strcpy(buf, left);
-  int j = 0, len = (int)strlen(buf) - 1;
-  for (j = 0; j <= 48 - len ; ++j) { buf[len + j] = ' '; }
-  buf[len + j++] = '<';
-  buf[len + j++] = '\0';
-  printf("%s\n", buf);
-}
-void printright(const char* right) {
-  if (right == NULL) { return; }
-  printf("%50s %s", ">", right);
-}
-void printboth(const char* left_right) {
-  char buf[BUFLEN];
-  size_t len = strlen(left_right);
-  if (len > 0) { strncpy(buf, left_right, len); }
-  buf[len - 1] = '\0';
-  printf("%-50s %s", buf, left_right);
-}
-size_t pa_filesize(pa* p) { return p == NULL ? 0 : p->filesize; }
-size_t pa_size(pa* p) { return p == NULL || p->stop < p->start ? 0 : p->stop - p->start + 1; }
-char** pa_base(pa* p) { return p->base; }
-//char* yesorno(int condition) { return condition == 0 ? "no" : "YES"; }
-char* pa_info(pa* p) {
-  static char buf[BUFLEN];   // static for a reason
-  snprintf(buf, sizeof(buf), "base: %p, filesize: %d, start: %d, stop: %d\n",
-    p->base, p->filesize, p->start, p->stop);
-  return buf;  // buf MUST be static
-}
-int pa_equal(pa* p, pa* q) {
-  if (p == NULL || q == NULL) { return 0; }
-  if (pa_size(p) != pa_size(q)) { return 0; }
-  int i = p->start, j = q->start, equal = 0;
-  while ((equal = strcmp(p->base[i], q->base[i])) == 0) { ++i; ++j; }
-  return equal;
-}
-FILE* openfile(const char* filename, const char* openflags) {
-  FILE* f;
-  if ((f = fopen(filename, openflags)) == NULL) {  printf("can't open '%s'\n", filename);  exit(1); }
-  return f;
-}

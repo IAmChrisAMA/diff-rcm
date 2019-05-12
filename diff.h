@@ -12,16 +12,9 @@
 #define HASHLEN 200
 #define BUFLEN 256
 
-typedef struct pa pa;
-struct pa {
-  char** base;
-  int filesize;
-  int start;
-  int stop;
-};
+// ======================================================================= //
 
 FILE *fin1, *fin2;
-
 const char* files[2] = { NULL, NULL };
 
 char buf[BUFLEN];
@@ -31,10 +24,6 @@ int showversion = 0, showbrief = 0, ignorecase = 0, report_identical = 0, showsi
 int showleftcolumn = 0, showunified = 0, showcontext = 0, suppresscommon = 0, diffnormal = 0;
 int showhelp = 0;
 
-int equal = 0;
+int equal = 0, cnt = 0, count = 0;
 
-int cnt = 0;
 int count1 = 0, count2 = 0;
-
-pa* p;
-pa* q;
