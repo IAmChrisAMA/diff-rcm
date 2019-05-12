@@ -29,6 +29,7 @@ pa* pa_next(pa* p) {
 
   return pnew;
 }
+
 void pa_print(pa* p, void (*fp)(const char*)) {
   if (p == NULL) { return; }
   for (int i = p->start; i <= p->stop && i != p->filesize; ++i) { fp(p->base[i]); }
@@ -55,16 +56,19 @@ void printboth(const char* left_right) {
   buf[len - 1] = '\0';
   printf("%-50s %s", buf, left_right);
 }
+
 size_t pa_filesize(pa* p) { return p == NULL ? 0 : p->filesize; }
 size_t pa_size(pa* p) { return p == NULL || p->stop < p->start ? 0 : p->stop - p->start + 1; }
+
 char** pa_base(pa* p) { return p->base; }
-//char* yesorno(int condition) { return condition == 0 ? "no" : "YES"; }
+char* yesorno(int condition) { return condition == 0 ? "no" : "YES"; }
 char* pa_info(pa* p) {
   static char buf[BUFLEN];   // static for a reason
   snprintf(buf, sizeof(buf), "base: %p, filesize: %d, start: %d, stop: %d\n",
     p->base, p->filesize, p->start, p->stop);
   return buf;  // buf MUST be static
 }
+
 int pa_equal(pa* p, pa* q) {
   if (p == NULL || q == NULL) { return 0; }
   if (pa_size(p) != pa_size(q)) { return 0; }
@@ -72,6 +76,7 @@ int pa_equal(pa* p, pa* q) {
   while ((equal = strcmp(p->base[i], q->base[i])) == 0) { ++i; ++j; }
   return equal;
 }
+
 FILE* openfile(const char* filename, const char* openflags) {
   FILE* f;
   if ((f = fopen(filename, openflags)) == NULL) {  printf("can't open '%s'\n", filename);  exit(1); }

@@ -12,7 +12,7 @@
 #define HASHLEN 200
 #define BUFLEN 256
 
-// ======================================================================= //
+// ================================================================= //
 
 FILE *fin1, *fin2;
 const char* files[2] = { NULL, NULL };
@@ -27,3 +27,19 @@ int showhelp = 0;
 int equal = 0, cnt = 0, count = 0;
 
 int count1 = 0, count2 = 0;
+
+// ================================================================ //
+
+void init(int argc, const char* argv[]);
+void setoption(const char* arg, const char* s, const char* t, int* value);
+void diff_output_conflict_error(void);
+
+void loadfiles(const char* filename1, const char* filename2);
+
+void version();
+void help();
+
+int normal(const char* filename1, const char* filename2);
+int sideside(const char* filename1, const char* filename2);
+void quiet(const char* filename1, const char* filename2);
+void loud(const char* filename1, const char* filename2);

@@ -7,37 +7,17 @@
 
 // ================================================================ //
 
-void init(int argc, const char* argv[]);
-void setoption(const char* arg, const char* s, const char* t, int* value);
-void diff_output_conflict_error(void);
-
-void loadfiles(const char* filename1, const char* filename2);
-
-void version();
-void todo();
-
-int normal(const char* filename1, const char* filename2);
-int sideside(const char* filename1, const char* filename2);
-void quiet(const char* filename1, const char* filename2);
-void loud(const char* filename1, const char* filename2);
-
-// ================================================================ //
-
 int main(int argc, const char* argv[]) {
 
   init(--argc, ++argv);
   loadfiles(files[0], files[1]);
 
   if (**argv != '-')      { normal(files[0], files[1]); }
-  if (argc < 3)           { printf("Usage: ./diff [options] file1 file2\n"); }
 
-  //if (!diffnormal)         { normal(files[0], files[1]); printf("\n"); }
   if (showsidebyside)     { sideside(files[0], files[1]); }
   if (showbrief)          { quiet(files[0], files[1]); }
   if (report_identical)   { loud(files[0], files[1]); }
-  if (!showversion && !showbrief && !ignorecase && !report_identical &&
-      !diffnormal && !showsidebyside && !showleftcolumn && !suppresscommon &&
-      !showcontext && !showunified && !showhelp) { printf("Usage: ./diff [options] file1 file2\n"); }
+
   return 0;
 
 }
@@ -70,7 +50,10 @@ void init(int argc, const char* argv[]) {
     ++argv;
   }
 
+  // ================================= //
+
   if (showversion)                                       { version();  exit(0); }
+  if (showhelp)                                          { help();     exit(0); }
 
   if (!showcontext && !showunified &&
       !showsidebyside && !showleftcolumn)                { diffnormal = 1; }
@@ -95,6 +78,8 @@ void diff_output_conflict_error(void) {
 
 void loadfiles(const char* filename1, const char* filename2) {
 
+  if (filename2 == NULL) { printf("Usage: ./diff [options] file1 file2\n"); exit(1); }
+
   memset(buf, 0, sizeof(buf));
   memset(strings1, 0, sizeof(strings1));
   memset(strings2, 0, sizeof(strings2));
@@ -107,8 +92,6 @@ void loadfiles(const char* filename1, const char* filename2) {
 
   p = pa_first(strings1, count1);
   q = pa_first(strings2, count2);
-
-  int foundmatch = 0;
 
 }
 
@@ -130,26 +113,39 @@ void version() {
   printf("\tv0.5 alpha | Smoking is bad for your health.\n\n");
   printf("Copyright (C) 2019 | All Rights Reserved.\n");
   printf("Any unauthorized use or re-distribution of this code is permitted.\n\n");
-  printf("\tChris Nutter\tWilliam McCarthy     Rasputin\n\n\n");
+  printf("\tChris Nutter\tWilliam McCarthy    Rasputin\n\n\n");
 }
-void todo() {
-  printf("\nTODO: check line by line in a pagraph, using '|' for differences");
-  printf("\nTODO: this starter code does not yet handle printing all of fin1's pagraphs.");
-  printf("\nTODO: handle the rest of diff's options");
-  printf("\nTODO: fix standard printing with no pameters");
-  printf("\nTODO: implement multiple types of pameters\n");
+void help() {
+  printf("\nUsage: diff-rcm [OPTION]... FILES\n");
+  printf("Compare FILES line by line.\n\n");
+  printf("Mandatory arguments to long options are mandatory for short options too.\n\n");
+  printf("\t    --normal\t\t        output a normal diff (the default)\n");
+  printf("\t-q, --brief\t\t        report only when files differ\n");
+  printf("\t-s, --report-identical-files    report when two files are the same\n");
+  printf("\t-c, -C NUM, --context[=NUM]     output NUM (default 3) lines of copied context\n");
+  printf("\t-u, -U NUM, --unified[=NUM]     output NUM (default 3) lines of unified context\n");
+  printf("\t-y, --side-by-side\t        output in two columns\n\n");
+  printf("\t-i, --ignore-case\t        ignore case differences in file contents\n\n");
+  printf("\t    --help\t\t        display this help and exit\n");
+  printf("\t-v, --version\t\t        output version information and exit\n\n");
+
+  printf("FILES are 'FILE1 FILE2'\n");
+  printf("If --from-file or --to-file is given, there are no restrictions on FILE(s).\n");
+  printf("If a FILE is '-', read standard input.\n");
+  printf("Exit status is 0 if inputs are the same, 1 if different, 2 if trouble.\n\n");
+  printf("Report bugs to: cdnutter@gmail.com\n");
+  printf("diff-rcm homepage: <https://www.github.com/cdnutter/diff/>\n\n");
 }
 
 int normal(const char* filename1, const char* filename2) {
 
   printf("\nTHIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
+  printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
+  printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
   printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n\n\n");
 
   pa_print(p, printleft);
   pa_print(q, printright);
-
-  printf("\nTHIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
-  printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n\n\n");
 
   return 0;
 }
@@ -162,7 +158,7 @@ int sideside(const char* filename1, const char* filename2) {
 
   return 0;
 }
-void quiet(const char* filename1, const char* filename2) { if (pa_equal(p, q) == 0) { printf("The files are not the same.\n"); } }
+void quiet(const char* filename1, const char* filename2) { if (pa_equal(p, q) == 0) { printf("The files are not the same.\n"); } else { return; } }
 void loud(const char* filename1, const char* filename2) {
 
   if (pa_equal(p, q) != 0) { printf("The files are equal.\n"); }
@@ -171,3 +167,11 @@ void loud(const char* filename1, const char* filename2) {
 }
 
 // ================================================================ //
+
+/*
+    TODO: check line by line in a pagraph, using '|' for differences");
+    TODO: this starter code does not yet handle printing all of fin1's pagraphs.");
+    TODO: handle the rest of diff's options");
+    TODO: fix standard printing with no pameters");
+    TODO: implement multiple types of pameters\n");
+*/
