@@ -79,6 +79,7 @@ void diff_output_conflict_error(void) {
 void loadfiles(const char* filename1, const char* filename2) {
 
   if (filename2 == NULL) { printf("Usage: ./diff [options] file1 file2\n"); exit(1); }
+  if (*filename1 == *filename2) { exit(0); }
 
   memset(buf, 0, sizeof(buf));
   memset(strings1, 0, sizeof(strings1));
@@ -96,11 +97,6 @@ void loadfiles(const char* filename1, const char* filename2) {
 }
 
 void version() {
-  // printf("\n     _ _  __  __                            \n");
-  // printf("  __| (_)/ _|/ _|      _ __ ___ _ __ ___    \n");
-  // printf(" / _` | | |_| |_ _____| '__/ __| '_ ` _ \\   \n");
-  // printf("| (_| | |  _|  _|_____| | | (__| | | | | |  \n");
-  // printf(" \\__,_|_|_| |_|       |_|  \\___|_| |_| |_|  \n\n");
   printf("\n\n       ██ ██   ████   ████                                     \n");
   printf("      ░██░░   ░██░   ░██░                                        \n");
   printf("      ░██ ██ ██████ ██████        ██████  █████  ██████████     \n");
@@ -144,8 +140,7 @@ int normal(const char* filename1, const char* filename2) {
   printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
   printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n\n\n");
 
-  pa_print(p, printleft);
-  pa_print(q, printright);
+  pa_print(p, printnormal);
 
   return 0;
 }
@@ -161,7 +156,7 @@ int sideside(const char* filename1, const char* filename2) {
 void quiet(const char* filename1, const char* filename2) { if (pa_equal(p, q) == 0) { printf("The files are not the same.\n"); } else { return; } }
 void loud(const char* filename1, const char* filename2) {
 
-  if (pa_equal(p, q) != 0) { printf("The files are equal.\n"); }
+  if (pa_equal(p, q) != 0) { printf("The files are identical.\n"); }
   else { normal(files[0], files[1]); }
 
 }

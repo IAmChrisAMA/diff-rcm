@@ -57,6 +57,13 @@ void printboth(const char* left_right) {
   printf("%-50s %s", buf, left_right);
 }
 
+void printnormal(const char* first) {
+  char buf[BUFLEN];
+  size_t len1 = strlen(first);
+  if (len1 > 0) { strncpy(buf, first, len1); }
+  buf[len1 - 1] = '\0';
+}
+
 size_t pa_filesize(pa* p) { return p == NULL ? 0 : p->filesize; }
 size_t pa_size(pa* p) { return p == NULL || p->stop < p->start ? 0 : p->stop - p->start + 1; }
 
@@ -70,11 +77,14 @@ char* pa_info(pa* p) {
 }
 
 int pa_equal(pa* p, pa* q) {
+
   if (p == NULL || q == NULL) { return 0; }
   if (pa_size(p) != pa_size(q)) { return 0; }
-  int i = p->start, j = q->start, equal = 0;
-  while ((equal = strcmp(p->base[i], q->base[i])) == 0) { ++i; ++j; }
-  return equal;
+  if (p->start >= p->filesize || q->start >= q->filesize) { return 0; }
+  int i = p->start, j = q->start, equal = 0, psize = p->filesize, qsize = q->filesize;
+  while (i < psize && j < qsize && (equal = strcmp(p->base[i], q->base[i])) == 0) { ++i; ++j; }
+  return 1;
+
 }
 
 FILE* openfile(const char* filename, const char* openflags) {
