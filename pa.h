@@ -13,6 +13,8 @@ struct pa {
   int filesize;
   int start;
   int stop;
+  char* firstline;   // DEBUG only
+  char* secondline;
 };
 
 pa* p;
@@ -30,8 +32,9 @@ void pa_print(pa* p, void (*fp)(const char*));
 void printboth(const char* left_right);
 void printleft(const char* left);
 void printright(const char* right);
-void printnormal(const char* first);
+void pa_printfile(char* base[], int count, void (*fp)(const char*));
 FILE* openfile(const char* filename, const char* openflags);
 char* yesorno(int condition);
+void printline(void);
 
 #endif

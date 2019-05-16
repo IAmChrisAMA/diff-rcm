@@ -79,7 +79,6 @@ void diff_output_conflict_error(void) {
 void loadfiles(const char* filename1, const char* filename2) {
 
   if (filename2 == NULL) { printf("Usage: ./diff [options] file1 file2\n"); exit(1); }
-  if (*filename1 == *filename2) { exit(0); }
 
   memset(buf, 0, sizeof(buf));
   memset(strings1, 0, sizeof(strings1));
@@ -135,28 +134,53 @@ void help() {
 
 int normal(const char* filename1, const char* filename2) {
 
+  identical(filename1, filename2);
+
   printf("\nTHIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
   printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
   printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
-  printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n\n\n");
+  printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n\n");
 
-  pa_print(p, printnormal);
+  //pa_print(p, printnormal);
 
   return 0;
 }
 int sideside(const char* filename1, const char* filename2) {
 
-  if (pa_equal(p, q)) { pa_print(p, printboth); return 0; }
-  pa_print(q, printright);
-  while ((q = pa_next(q)) != NULL && !equal) { equal = pa_equal(p, q); pa_print(q, equal ? printboth : printright); }
-  pa_print((p = pa_next(p)), printleft);
+  pa* qlast = q;
+  while (p != NULL) {
+    qlast = q;
+    foundmatch = 0;
+    while (q != NULL && (foundmatch = pa_equal(p, q)) == 0) { q = pa_next(q); }
+    q = qlast;
+
+    if (foundmatch) {
+      while ((foundmatch = pa_equal(p, q)) == 0) {
+        pa_print(q, printright);
+        q = pa_next(q);
+        qlast = q;
+      }
+      pa_print(q, printboth);
+      p = pa_next(p);
+      q = pa_next(q);
+    } else {
+      pa_print(p, printleft);
+      p = pa_next(p);
+    }
+  }
+  while (q != NULL) {
+    pa_print(q, printright);
+    q = pa_next(q);
+  }
 
   return 0;
 }
 void quiet(const char* filename1, const char* filename2) { if (pa_equal(p, q) == 0) { printf("The files are not the same.\n"); } else { return; } }
 void loud(const char* filename1, const char* filename2) {
 
-  if (pa_equal(p, q) != 0) { printf("The files are identical.\n"); }
+  if (*filename1 == *filename2 || (pa_equal(p, q) != 0)) { printf("The files are identical.\n"); }
   else { normal(files[0], files[1]); }
 
 }
+
+void identical(const char* filename1, const char* filename2) { if (*filename1 == *filename2) { exit(0); } else return; }

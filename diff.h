@@ -32,7 +32,7 @@ char *strings1[MAXSTRINGS], *strings2[MAXSTRINGS];
 
 int showversion = 0, showbrief = 0, ignorecase = 0, report_identical = 0, showsidebyside = 0;
 int showleftcolumn = 0, showunified = 0, showcontext = 0, suppresscommon = 0, diffnormal = 0;
-int showhelp = 0;
+int showhelp = 0, foundmatch = 0;
 
 int equal = 0, cnt = 0, count = 0;
 
@@ -53,3 +53,5 @@ int normal(const char* filename1, const char* filename2);
 int sideside(const char* filename1, const char* filename2);
 void quiet(const char* filename1, const char* filename2);
 void loud(const char* filename1, const char* filename2);
+
+void identical(const char* filename1, const char* filename2);
