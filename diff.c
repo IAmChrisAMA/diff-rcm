@@ -12,9 +12,9 @@ int main(int argc, const char* argv[]) {
   init(--argc, ++argv);
   loadfiles(files[0], files[1]);
 
-  if (**argv != '-' || diffnormal == 1)      { standard(files[0], files[1]); }
+  if (**argv != '-' || diffnormal == 1)      { standard(); }
 
-  if (showsidebyside)     { sideside(files[0], files[1]); }
+  if (showsidebyside)     { sideside(); }
   if (showbrief)          { quiet(files[0], files[1]); }
   if (report_identical)   { loud(files[0], files[1]); }
 
@@ -52,16 +52,16 @@ void init(int argc, const char* argv[]) {
 
   // ================================= //
 
-  if (showversion)                                       { version();  exit(0); }
-  if (showhelp)                                          { help();     exit(0); }
+  if (showversion)                                      { version();  exit(0); }
+  if (showhelp)                                         { help();     exit(0); }
 
   if (!showcontext && !showunified &&
-      !showsidebyside && !showleftcolumn)                { diffnormal = 1; }
+      !showsidebyside && !showleftcolumn)               { diffnormal = 1; }
 
   if (((showsidebyside || showleftcolumn) &&
-        (diffnormal || showcontext || showunified)) ||
-        (showcontext && showunified) || (diffnormal &&
-        (showcontext || showunified)))                   { diff_output_conflict_error(); }
+       (diffnormal || showcontext || showunified)) ||
+       (showcontext && showunified) || (diffnormal &&
+       (showcontext || showunified)))                   { diff_output_conflict_error(); }
 
 }
 
@@ -71,8 +71,8 @@ void setoption(const char* arg, const char* s, const char* t, int* value) {
 void diff_output_conflict_error(void) {
 
   fprintf(stderr, "diff-rcm: Conflicting output style options.\n");
-  fprintf(stderr, "diff-rcm: Try `diff --help' for more information.)\n");
-  exit(CONFLICTING_OUTPUT_OPTIONS);
+  fprintf(stderr, "diff-rcm: Try `diff --help' for more information.\n");
+  exit   (CONFLICTING_OUTPUT_OPTIONS);
 
 }
 
@@ -89,13 +89,12 @@ void loadfiles(const char* filename1, const char* filename2) {
 
   while (!feof(fin1) && fgets(buf, BUFLEN, fin1) != NULL) { strings1[count1++] = strdup(buf); }  fclose(fin1);
   while (!feof(fin2) && fgets(buf, BUFLEN, fin2) != NULL) { strings2[count2++] = strdup(buf); }  fclose(fin2);
-
-  p = pa_first(strings1, count1);
-  q = pa_first(strings2, count2);
+    
+  fclose(fin1); fclose(fin2);
 
 }
 
-void version() {
+void version(void) {
   printf("\n\n       ██ ██   ████   ████                                     \n");
   printf("      ░██░░   ░██░   ░██░                                        \n");
   printf("      ░██ ██ ██████ ██████        ██████  █████  ██████████     \n");
@@ -110,7 +109,7 @@ void version() {
   printf("Any unauthorized use or re-distribution of this code is permitted.\n\n");
   printf("\tChris Nutter\tWilliam McCarthy    Rasputin\n\n\n");
 }
-void help() {
+void help(void) {
   printf("\nUsage: diff-rcm [OPTION]... FILES\n");
   printf("Compare FILES line by line.\n\n");
   printf("Mandatory arguments to long options are mandatory for short options too.\n\n");
@@ -132,24 +131,17 @@ void help() {
   printf("diff-rcm homepage: <https://www.github.com/cdnutter/diff/>\n\n");
 }
 
-int standard(const char* filename1, const char* filename2) {
-
-  identical(filename1, filename2);
-
-  printf("\nTHIS IS NOT standard FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
-  printf("THIS IS NOT standard FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
-  printf("THIS IS NOT standard FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
-  printf("THIS IS NOT standard FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n\n");
-
-    //pa* qlast = q;
-
-  return 0;
+void standard(void) {
+    
 }
 
-int sideside(const char* filename1, const char* filename2) {
+void sideside(void) {
+    
+    p = pa_first(strings1, count1);
+    q = pa_first(strings2, count2);
+    int foundmatch = 0;
     
     pa* qlast = q;
-    
     while(p != NULL) {
         
         qlast = q;
@@ -159,35 +151,42 @@ int sideside(const char* filename1, const char* filename2) {
         q = qlast;
         
         if (foundmatch) {
+            
             while ((foundmatch = pa_equal(p, q)) == 0) {
-                pa_print(q, NULL, printright);
+                
+                printcheck(q, NULL, printright);
                 q = pa_next(q);
                 qlast = q;
+            
             }
             
-            if      (showleftcolumn) { pa_print(p, q, printnocommon); }
-            else if (suppresscommon) { pa_print(p, q, printleftparen); }
-            else                     { pa_print(p, q, printboth); }
+            if      (showleftcolumn) { printcheck(p, q, printnocommon); }
+            else if (suppresscommon) { printcheck(p, q, printleftparen); }
+            else                     { printcheck(p, q, printboth); }
             
             p = pa_next(p);
             q = pa_next(q);
+            
         }
         
-        else { pa_print(p, NULL, printleft);  p = pa_next(p); }
+        else { printcheck(p, NULL, printleft);  p = pa_next(p); }
+        
     }
     
-    while(q != NULL) { pa_print(q, NULL, printright);  q = pa_next(q); }
-    
-    return 0;
-    
+    while(q != NULL) {
+        
+        printcheck(q, NULL, printright);
+        q = pa_next(q);
+        
+    }
 }
 
-void quiet(const char* filename1, const char* filename2) { if (pa_equal(p, q) == 0) { printf("The files are not the same.\n"); } else { return; } }
+void quiet(const char* filename1, const char* filename2) { if (identical(filename1, filename2) == 0) { printf("Files %s and %s differ.\n", filename1, filename2); } }
 void loud(const char* filename1, const char* filename2) {
 
-  if (*filename1 == *filename2 || (pa_equal(p, q) != 0)) { printf("The files are identical.\n"); }
-  else { standard(files[0], files[1]); }
+  if (*filename1 == *filename2 || (pa_equal(p, q) != 0)) { printf("Files %s and %s are identical.\n", filename1, filename2); }
+  else                                                   { standard(); }
 
 }
 
-void identical(const char* filename1, const char* filename2) { if (*filename1 == *filename2) { exit(0); } else return; }
+int identical(const char* filename1, const char* filename2) { if (*filename1 == *filename2) { exit(0); } else return 0; }

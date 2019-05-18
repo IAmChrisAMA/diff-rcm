@@ -59,7 +59,7 @@ char* pa_info(pa* p) {
 
 int pa_equal(pa* p, pa* q) {
     
-    if (p == NULL || q == NULL) { return 0; }
+    if (p == NULL || q == NULL)   { return 0; }
     if (pa_size(p) != pa_size(q)) { return 0; }
     if(p->start >= p->filesize || q->start >= q->filesize) { return 0; }
     
@@ -82,34 +82,9 @@ void sideside_type(const char* left, const char* right, int nocommon, int leftpa
     
     if(symbol != '|' && nocommon == 1) { return; }
     
-    printf("%-61s %c ", buf, symbol);
+    printf("%-48s %c ", buf, symbol);
     if (symbol == '|') { printf("%s", right); }
-    else { printf("%s", (leftparen ? "\n" : right)); }
-    
-}
-
-void print_first(pa* p, void (*fp)(const char*)) {
-    
-    if (p == NULL) { return; }
-    for (int i = p->start; i <= p->stop && i != p->filesize; ++i) { fp(p->base[i]); }
-    
-}
-
-void print_second(pa* p, pa* q, void (*fp)(const char*, const char*)) {
-    
-    if(p == NULL || q == NULL) { return; }
-    for(int i = p->start, j = q->start;
-        i <= p->stop && i != p->filesize &&
-        j <= q->stop && j != q->filesize; ++i, ++j) {
-        fp(p->base[i], q->base[j]);
-    }
-    
-}
-
-void pa_print(pa* p, pa* q, void (*fp)(const char*, const char*)) {
-    
-    if(q == NULL) { print_first(p, (void (*)(const char*)) fp); }
-    else { print_second(p, q, fp); }
+    else               { printf("%s", (leftparen ? "\n" : right)); }
     
 }
 
@@ -134,6 +109,7 @@ void printleft(const char* left, const char* n) {
     
     buf[len + j++] = '<';
     buf[len + j++] = '\0';
+    
     printf("%s\n", buf);
     
 }
@@ -154,5 +130,30 @@ void printboth(const char* left_right, const char* n) {
     
     buf[len - 1] = '\0';
     printf("%-50s %s", buf, left_right);
+    
+}
+
+void printcheck(pa* p, pa* q, void (*fp)(const char*, const char*)) {
+    
+    if (q == NULL) { print_first(p, (void (*)(const char*)) fp); }
+    else           { print_second(p, q, fp); }
+    
+}
+
+void print_first(pa* p, void (*fp)(const char*)) {
+    
+    if (p == NULL) { return; }
+    for (int i = p->start; i <= p->stop && i != p->filesize; ++i) { fp(p->base[i]); }
+    
+}
+
+void print_second(pa* p, pa* q, void (*fp)(const char*, const char*)) {
+    
+    if(p == NULL || q == NULL) { return; }
+    for(int i = p->start, j = q->start;
+        i <= p->stop && i != p->filesize &&
+        j <= q->stop && j != q->filesize; ++i, ++j) {
+        fp(p->base[i], q->base[j]);
+    }
     
 }
