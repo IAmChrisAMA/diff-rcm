@@ -49,7 +49,7 @@ void loadfiles(const char* filename1, const char* filename2);
 void version();
 void help();
 
-int normal(const char* filename1, const char* filename2);
+int standard(const char* filename1, const char* filename2);
 int sideside(const char* filename1, const char* filename2);
 void quiet(const char* filename1, const char* filename2);
 void loud(const char* filename1, const char* filename2);

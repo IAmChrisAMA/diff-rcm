@@ -12,7 +12,7 @@ int main(int argc, const char* argv[]) {
   init(--argc, ++argv);
   loadfiles(files[0], files[1]);
 
-  if (**argv != '-')      { normal(files[0], files[1]); }
+  if (**argv != '-' || diffnormal == 1)      { standard(files[0], files[1]); }
 
   if (showsidebyside)     { sideside(files[0], files[1]); }
   if (showbrief)          { quiet(files[0], files[1]); }
@@ -39,7 +39,7 @@ void init(int argc, const char* argv[]) {
     setoption(arg, "--suppress-common-lines",   NULL,                         &suppresscommon);
     setoption(arg, "-c",                        "--context",                  &showcontext);
     setoption(arg, "-u",                        "showunified",                &showunified);
-    setoption(arg, "-h",                        "--help",                     &showhelp);
+    setoption(arg, "--help",                    NULL,                         &showhelp);
 
     if (arg[0] != '-') {
       if (cnt == 2) {
@@ -70,8 +70,8 @@ void setoption(const char* arg, const char* s, const char* t, int* value) {
 }
 void diff_output_conflict_error(void) {
 
-  fprintf(stderr, "diff: conflicting output style options\n");
-  fprintf(stderr, "diff: Try `diff --help' for more information.)\n");
+  fprintf(stderr, "diff-rcm: Conflicting output style options.\n");
+  fprintf(stderr, "diff-rcm: Try `diff --help' for more information.)\n");
   exit(CONFLICTING_OUTPUT_OPTIONS);
 
 }
@@ -114,7 +114,7 @@ void help() {
   printf("\nUsage: diff-rcm [OPTION]... FILES\n");
   printf("Compare FILES line by line.\n\n");
   printf("Mandatory arguments to long options are mandatory for short options too.\n\n");
-  printf("\t    --normal\t\t        output a normal diff (the default)\n");
+  printf("\t    --standard\t\t        output a standard diff (the default)\n");
   printf("\t-q, --brief\t\t        report only when files differ\n");
   printf("\t-s, --report-identical-files    report when two files are the same\n");
   printf("\t-c, -C NUM, --context[=NUM]     output NUM (default 3) lines of copied context\n");
@@ -132,54 +132,61 @@ void help() {
   printf("diff-rcm homepage: <https://www.github.com/cdnutter/diff/>\n\n");
 }
 
-int normal(const char* filename1, const char* filename2) {
+int standard(const char* filename1, const char* filename2) {
 
   identical(filename1, filename2);
 
-  printf("\nTHIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
-  printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
-  printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
-  printf("THIS IS NOT NORMAL FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n\n");
+  printf("\nTHIS IS NOT standard FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
+  printf("THIS IS NOT standard FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
+  printf("THIS IS NOT standard FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n");
+  printf("THIS IS NOT standard FOR NOW. THIS IS PLACEHOLDER. MMKAY.\n\n");
 
-  //pa_print(p, printnormal);
+    //pa* qlast = q;
 
   return 0;
 }
+
 int sideside(const char* filename1, const char* filename2) {
-
-  pa* qlast = q;
-  while (p != NULL) {
-    qlast = q;
-    foundmatch = 0;
-    while (q != NULL && (foundmatch = pa_equal(p, q)) == 0) { q = pa_next(q); }
-    q = qlast;
-
-    if (foundmatch) {
-      while ((foundmatch = pa_equal(p, q)) == 0) {
-        pa_print(q, printright);
-        q = pa_next(q);
+    
+    pa* qlast = q;
+    
+    while(p != NULL) {
+        
         qlast = q;
-      }
-      pa_print(q, printboth);
-      p = pa_next(p);
-      q = pa_next(q);
-    } else {
-      pa_print(p, printleft);
-      p = pa_next(p);
+        foundmatch = 0;
+        
+        while (q != NULL && (foundmatch = pa_equal(p, q)) == 0) { q = pa_next(q); }
+        q = qlast;
+        
+        if (foundmatch) {
+            while ((foundmatch = pa_equal(p, q)) == 0) {
+                pa_print(q, NULL, printright);
+                q = pa_next(q);
+                qlast = q;
+            }
+            
+            if      (showleftcolumn) { pa_print(p, q, printnocommon); }
+            else if (suppresscommon) { pa_print(p, q, printleftparen); }
+            else                     { pa_print(p, q, printboth); }
+            
+            p = pa_next(p);
+            q = pa_next(q);
+        }
+        
+        else { pa_print(p, NULL, printleft);  p = pa_next(p); }
     }
-  }
-  while (q != NULL) {
-    pa_print(q, printright);
-    q = pa_next(q);
-  }
-
-  return 0;
+    
+    while(q != NULL) { pa_print(q, NULL, printright);  q = pa_next(q); }
+    
+    return 0;
+    
 }
+
 void quiet(const char* filename1, const char* filename2) { if (pa_equal(p, q) == 0) { printf("The files are not the same.\n"); } else { return; } }
 void loud(const char* filename1, const char* filename2) {
 
   if (*filename1 == *filename2 || (pa_equal(p, q) != 0)) { printf("The files are identical.\n"); }
-  else { normal(files[0], files[1]); }
+  else { standard(files[0], files[1]); }
 
 }
 
