@@ -70,6 +70,8 @@ int pa_equal(pa* p, pa* q) {
     
 }
 
+// ======================================================================================================= //
+
 void sideside_type(const char* left, const char* right, int nocommon, int leftparen, char symbol) {
     
     char buf[BUFLEN];
@@ -88,8 +90,11 @@ void sideside_type(const char* left, const char* right, int nocommon, int leftpa
     
 }
 
-void printleftparen(const char* left, const char* right) { sideside_type(left, right, 1, 0, ' '); }
-void printnocommon(const char* left, const char* right)  { sideside_type(left, right, 0, 1, '('); }
+// ======================================================================================================= //
+
+void print_left_paren(const char* left, const char* right)  { sideside_type(left, right, 0, 1, '('); }
+void print_no_common(const char* left, const char* right)   { sideside_type(left, right, 1, 0, ' '); }
+void print_side_normal(const char* left, const char* right) { sideside_type(left, right, 0, 0, ' '); }
 
 FILE* openfile(const char* filename, const char* openflags) {
     
@@ -99,7 +104,7 @@ FILE* openfile(const char* filename, const char* openflags) {
     
 }
 
-void printleft(const char* left, const char* n) {
+void print_left(const char* left, const char* n) {
     
     char buf[BUFLEN];
     strcpy(buf, left);
@@ -114,14 +119,14 @@ void printleft(const char* left, const char* n) {
     
 }
 
-void printright(const char* right, const char* n) {
+void print_right(const char* right, const char* _) {
     
     if (right == NULL) { return; }
     printf("%50s %s", ">", right);
     
 }
 
-void printboth(const char* left_right, const char* n) {
+void print_both(const char* left_right, const char* _) {
     
     char buf[BUFLEN];
     size_t len = strlen(left_right);
@@ -133,7 +138,7 @@ void printboth(const char* left_right, const char* n) {
     
 }
 
-void printcheck(pa* p, pa* q, void (*fp)(const char*, const char*)) {
+void print_check(pa* p, pa* q, void (*fp)(const char*, const char*)) {
     
     if (q == NULL) { print_first(p, (void (*)(const char*)) fp); }
     else           { print_second(p, q, fp); }

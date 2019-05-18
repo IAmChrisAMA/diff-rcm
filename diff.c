@@ -90,6 +90,9 @@ void loadfiles(const char* filename1, const char* filename2) {
   while (!feof(fin1) && fgets(buf, BUFLEN, fin1) != NULL) { strings1[count1++] = strdup(buf); }  fclose(fin1);
   while (!feof(fin2) && fgets(buf, BUFLEN, fin2) != NULL) { strings2[count2++] = strdup(buf); }  fclose(fin2);
     
+  p = pa_first(strings1, count1);
+  q = pa_first(strings2, count2);
+    
   fclose(fin1); fclose(fin2);
 
 }
@@ -137,8 +140,6 @@ void standard(void) {
 
 void sideside(void) {
     
-    p = pa_first(strings1, count1);
-    q = pa_first(strings2, count2);
     int foundmatch = 0;
     
     pa* qlast = q;
@@ -154,28 +155,28 @@ void sideside(void) {
             
             while ((foundmatch = pa_equal(p, q)) == 0) {
                 
-                printcheck(q, NULL, printright);
+                print_check(q, NULL, print_right);
                 q = pa_next(q);
                 qlast = q;
             
             }
             
-            if      (showleftcolumn) { printcheck(p, q, printnocommon); }
-            else if (suppresscommon) { printcheck(p, q, printleftparen); }
-            else                     { printcheck(p, q, printboth); }
+            if      (showleftcolumn) { print_check(p, q, print_left_paren); }
+            else if (suppresscommon) { print_check(p, q, print_no_common); }
+            else                     { print_check(p, q, print_side_normal); }
             
             p = pa_next(p);
             q = pa_next(q);
             
         }
         
-        else { printcheck(p, NULL, printleft);  p = pa_next(p); }
+        else { print_check(p, NULL, print_left);  p = pa_next(p); }
         
     }
     
     while(q != NULL) {
         
-        printcheck(q, NULL, printright);
+        print_check(q, NULL, print_right);
         q = pa_next(q);
         
     }
