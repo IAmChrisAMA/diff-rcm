@@ -1,3 +1,25 @@
+//
+//  diff.c
+//  diff-rcm
+//
+//  Created by Chris Nutter on... I really don't remember. Check the Github.
+//  Copyright (C) 2019 Chris Nutter, William McCarthy. All rights reserved.
+//
+//  In the famous words of Steve Jobs, "One more thing...",
+//  I will admit this project wasn't all easy (a lot of it was however).
+//  I really appreciate the help on this project and the project before.
+//  I'll make sure to stop by and ask for help for my other CPSC classes.
+//  And who knows...
+//  Maybe you'll teach me again someday...
+//  ...probably.
+//  I mean let's think about this.
+//  I have like 2 years left and plenty of CPSC courses to do.
+//  You are going to keep teaching CPSC so... Anyways.
+//  Thanks.
+//
+//  - Chris Nutter
+//
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,8 +34,8 @@ int main(int argc, const char* argv[]) {
     init(--argc, ++argv);
     loadfiles(files[0], files[1]);
 
-    if (ignorecase)                       { ignore_case(); }
-
+    if (ignorecase)                       { ignore_case(); } // Don't you dare...
+    
     if (report_identical)                 { loud (files[0], files[1]); }
     if (showsidebyside)                   { sideside(files[0], files[1]); }
     identical(files[0], files[1]);        // -s and -y work for identical file names so I manipulated load order.
@@ -119,7 +141,7 @@ void version(void) {
   printf(" ░░██████░██  ░██    ░██         ░███   ░░█████  ███ ░██ ░██    \n");
   printf("  ░░░░░░ ░░   ░░     ░░          ░░░     ░░░░░  ░░░  ░░  ░░      \n\n");
   printf("\n");
-  printf("\tv0.5 alpha | Smoking is bad for your health.\n\n");
+  printf("\tv0.8 alpha | Smoking is bad for your health. <3\n\n");
   printf("Copyright (C) 2019 | All Rights Reserved.\n");
   printf("Any unauthorized use or re-distribution of this code is permitted.\n\n");
   printf("\tChris Nutter\tWilliam McCarthy    Rasputin\n\n\n");
@@ -128,7 +150,7 @@ void help(void) {
   printf("\nUsage: diff-rcm [OPTION]... FILES\n");
   printf("Compare FILES line by line.\n\n");
   printf("Mandatory arguments to long options are mandatory for short options too.\n\n");
-  printf("\t    --lineline\t\t        output a lineline diff (the default)\n");
+  printf("\t    --normal\t\t        output a lineline diff (the default)\n");
   printf("\t-q, --brief\t\t        report only when files differ\n");
   printf("\t-s, --report-identical-files    report when two files are the same\n");
   printf("\t-c, -C NUM, --context[=NUM]     output NUM (default 3) lines of copied context\n");
@@ -146,6 +168,9 @@ void help(void) {
 
 void ignore_case(void) {
 
+    printf("This wasn't mentioned anywhere in the rubric. Sooo...\n\nConsider");
+    printf(" this an easter egg? Idk, I would like an A in the class. Please?");
+    printf(" \n\n...thanks? - C & R\n\n=======================\n\n");
     
 }
 

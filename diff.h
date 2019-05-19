@@ -15,8 +15,8 @@
 // ================================================================ //
 
 /*
-    TODO: check line by line in a pagraph, using '|' for differences");
-    TODO: this starter code does not yet handle printing all of fin1's pagraphs.");
+    TODO: check line by line in a pagraph, using '|' for differences"); ----------------------- DONE
+    TODO: this starter code does not yet handle printing all of fin1's pagraphs."); ----------- DONE
     TODO: handle the rest of diff's options");
     TODO: fix lineline printing with no pameters");
     TODO: implement multiple types of pameters\n");
