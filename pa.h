@@ -39,16 +39,23 @@ void sideside_type(const char* left, const char* right, int nocommon, int leftpa
 
 void print_check(pa* p, pa* q, void (*fp)(const char*, const char*));
 
-void print_first(pa* p, void (*fp)(const char*));
+void print_first (pa* p, void (*fp)(const char*));
 void print_second(pa* p, pa* q, void (*fp)(const char*, const char*));
 
-void print_left_paren(const char* left, const char* right);
-void print_no_common(const char* left, const char* right);
+void print_left_paren (const char* left, const char* right);
+void print_no_common  (const char* left, const char* right);
 void print_side_normal(const char* left, const char* right);
 
-void print_left(const char* left, const char*);
+void print_left (const char* left, const char*);
 void print_right(const char* right, const char*);
-void print_both(const char* left_right, const char*);
+void print_both (const char* left_right, const char*);
+
+void print_normal_left (const char* left, const char*);
+void print_normal_right(const char* right, const char*);
+void print_normal_both (const char* left, const char* right, const char*);
+
+void line_check(const char* right, const char*);
+int  line_number(const char* left, const char* right);
 
 
 #endif

@@ -9,16 +9,23 @@
 
 int main(int argc, const char* argv[]) {
 
-  init(--argc, ++argv);
-  loadfiles(files[0], files[1]);
+    init(--argc, ++argv);
+    loadfiles(files[0], files[1]);
 
-  if (**argv != '-' || diffnormal == 1)      { standard(); }
+    if (ignorecase)                       { ignore_case(); }
 
-  if (showsidebyside)     { sideside(); }
-  if (showbrief)          { quiet(files[0], files[1]); }
-  if (report_identical)   { loud(files[0], files[1]); }
+    if (report_identical)                 { loud (files[0], files[1]); }
+    if (showsidebyside)                   { sideside(files[0], files[1]); }
+    identical(files[0], files[1]);        // -s and -y work for identical file names so I manipulated load order.
+    
+    if (showbrief)                        { quiet(files[0], files[1]); }
+        
+    if (**argv != '-' || diffnormal == 1) { lineline(); }
 
-  return 0;
+    if (showcontext)                      { context();  }
+    if (showunified)                      { unified();  }
+
+    return 0;
 
 }
 
@@ -52,22 +59,25 @@ void init(int argc, const char* argv[]) {
 
   // ================================= //
 
-  if (showversion)                                      { version();  exit(0); }
-  if (showhelp)                                         { help();     exit(0); }
+  if (showversion)                                    { version();  exit(0); }
+  if (showhelp)                                       { help();     exit(0); }
 
   if (!showcontext && !showunified &&
-      !showsidebyside && !showleftcolumn)               { diffnormal = 1; }
+      !showsidebyside && !showleftcolumn)             { diffnormal = 1; }
 
   if (((showsidebyside || showleftcolumn) &&
-       (diffnormal || showcontext || showunified)) ||
-       (showcontext && showunified) || (diffnormal &&
-       (showcontext || showunified)))                   { diff_output_conflict_error(); }
+      (diffnormal || showcontext || showunified)) ||
+      (showcontext && showunified) || (diffnormal &&
+      (showcontext || showunified)))                  { diff_output_conflict_error(); }
 
 }
 
 void setoption(const char* arg, const char* s, const char* t, int* value) {
+    
   if ((strcmp(arg, s) == 0) || ((t != NULL && strcmp(arg, t) == 0))) { *value = 1; }
+    
 }
+
 void diff_output_conflict_error(void) {
 
   fprintf(stderr, "diff-rcm: Conflicting output style options.\n");
@@ -97,6 +107,8 @@ void loadfiles(const char* filename1, const char* filename2) {
 
 }
 
+// ============================================================================= //
+
 void version(void) {
   printf("\n\n       ██ ██   ████   ████                                     \n");
   printf("      ░██░░   ░██░   ░██░                                        \n");
@@ -116,7 +128,7 @@ void help(void) {
   printf("\nUsage: diff-rcm [OPTION]... FILES\n");
   printf("Compare FILES line by line.\n\n");
   printf("Mandatory arguments to long options are mandatory for short options too.\n\n");
-  printf("\t    --standard\t\t        output a standard diff (the default)\n");
+  printf("\t    --lineline\t\t        output a lineline diff (the default)\n");
   printf("\t-q, --brief\t\t        report only when files differ\n");
   printf("\t-s, --report-identical-files    report when two files are the same\n");
   printf("\t-c, -C NUM, --context[=NUM]     output NUM (default 3) lines of copied context\n");
@@ -126,68 +138,99 @@ void help(void) {
   printf("\t    --help\t\t        display this help and exit\n");
   printf("\t-v, --version\t\t        output version information and exit\n\n");
 
-  printf("FILES are 'FILE1 FILE2'\n");
-  printf("If --from-file or --to-file is given, there are no restrictions on FILE(s).\n");
-  printf("If a FILE is '-', read standard input.\n");
-  printf("Exit status is 0 if inputs are the same, 1 if different, 2 if trouble.\n\n");
   printf("Report bugs to: cdnutter@gmail.com\n");
   printf("diff-rcm homepage: <https://www.github.com/cdnutter/diff/>\n\n");
 }
 
-void standard(void) {
+// ============================================================================= //
+
+void ignore_case(void) {
+
     
 }
 
-void sideside(void) {
+int identical(const char* filename1, const char* filename2) { if (*filename1 == *filename2) { exit(0); } else return 0; }
+
+// ============================================================================= //
+
+void lineline(void) {
     
-    int foundmatch = 0;
+    int foundmatch = 0; pa* qlast = q;
     
-    pa* qlast = q;
-    while(p != NULL) {
+    while (p != NULL) {
+        qlast = q; foundmatch = 0;
+
+        while (q != NULL && (foundmatch = pa_equal(p, q)) == 0) { q = pa_next(q); }
+        q = qlast;
         
-        qlast = q;
-        foundmatch = 0;
+        if (foundmatch) {
+            while ((foundmatch = pa_equal(p, q)) == 0) {
+                
+                print_check(q, NULL, print_normal_right);
+                q = pa_next(q);
+                qlast = q;
+            }
+            print_check(p, q, line_check);
+            
+            p = pa_next(p);
+            q = pa_next(q);
+        }
+        else { print_check(p, NULL, print_normal_left);  p = pa_next(p); }
+    }
+    
+    while (q != NULL) { print_check(q, NULL, print_normal_right);  q = pa_next(q); }
+
+}
+
+void sideside(const char* filename1, const char* filename2) {
+    
+    int foundmatch = 0;  pa* qlast = q;
+    if (*filename1 == *filename2) {
+        while (p != NULL && q != NULL) { print_check(p, q, print_both);
+        p = pa_next(p); }
+        return;
+    }
+    
+    while (p != NULL) {
+        qlast = q; foundmatch = 0;
         
         while (q != NULL && (foundmatch = pa_equal(p, q)) == 0) { q = pa_next(q); }
         q = qlast;
         
         if (foundmatch) {
-            
             while ((foundmatch = pa_equal(p, q)) == 0) {
-                
                 print_check(q, NULL, print_right);
                 q = pa_next(q);
                 qlast = q;
-            
             }
             
-            if      (showleftcolumn) { print_check(p, q, print_left_paren); }
-            else if (suppresscommon) { print_check(p, q, print_no_common); }
+            if      (showleftcolumn) { print_check(p, q, print_left_paren);  }
+            else if (suppresscommon) { print_check(p, q, print_no_common);   }
             else                     { print_check(p, q, print_side_normal); }
             
             p = pa_next(p);
             q = pa_next(q);
-            
         }
         
         else { print_check(p, NULL, print_left);  p = pa_next(p); }
-        
     }
     
-    while(q != NULL) {
-        
-        print_check(q, NULL, print_right);
-        q = pa_next(q);
-        
-    }
+    while (q != NULL) { print_check(q, NULL, print_right);  q = pa_next(q); }
+    
 }
 
-void quiet(const char* filename1, const char* filename2) { if (identical(filename1, filename2) == 0) { printf("Files %s and %s differ.\n", filename1, filename2); } }
-void loud(const char* filename1, const char* filename2) {
+void context(void) {}
+void unified(void) {}
+
+void quiet(const char* filename1, const char* filename2) { if (identical(filename1, filename2) == 0) { printf("Files %s and %s differ.\n", filename1, filename2); } exit(0); }
+void loud (const char* filename1, const char* filename2) {
 
   if (*filename1 == *filename2 || (pa_equal(p, q) != 0)) { printf("Files %s and %s are identical.\n", filename1, filename2); }
-  else                                                   { standard(); }
+  else if (showsidebyside)                               { sideside(files[0], files[1]); exit(0); }
+  else if (showcontext)                                  { context();  exit(0); }
+  else if (showunified)                                  { unified();  exit(0); }
+  else                                                   { lineline(); exit(0); }
 
 }
 
-int identical(const char* filename1, const char* filename2) { if (*filename1 == *filename2) { exit(0); } else return 0; }
+// ============================================================================= //

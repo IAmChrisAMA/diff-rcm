@@ -4,7 +4,17 @@
 
 #include "pa.h"
 
-// ======================================================================= //
+// ============================================================================================================= //
+
+FILE* openfile(const char* filename, const char* openflags) {
+    
+    FILE* f;
+    if ((f = fopen(filename, openflags)) == NULL) {  printf("can't open '%s'\n", filename);  exit(1); }
+    return f;
+    
+}
+
+// ============================================================================================================= //
 
 pa* pa_make(char* base[], int filesize, int start, int stop) {
     
@@ -70,7 +80,7 @@ int pa_equal(pa* p, pa* q) {
     
 }
 
-// ======================================================================================================= //
+// ============================================================================================================= //
 
 void sideside_type(const char* left, const char* right, int nocommon, int leftparen, char symbol) {
     
@@ -90,21 +100,13 @@ void sideside_type(const char* left, const char* right, int nocommon, int leftpa
     
 }
 
-// ======================================================================================================= //
+// ============================================== SIDE-BY-SIDE ================================================ //
 
 void print_left_paren(const char* left, const char* right)  { sideside_type(left, right, 0, 1, '('); }
 void print_no_common(const char* left, const char* right)   { sideside_type(left, right, 1, 0, ' '); }
 void print_side_normal(const char* left, const char* right) { sideside_type(left, right, 0, 0, ' '); }
 
-FILE* openfile(const char* filename, const char* openflags) {
-    
-    FILE* f;
-    if ((f = fopen(filename, openflags)) == NULL) {  printf("can't open '%s'\n", filename);  exit(1); }
-    return f;
-    
-}
-
-void print_left(const char* left, const char* n) {
+void print_left(const char* left, const char* _) {
     
     char buf[BUFLEN];
     strcpy(buf, left);
@@ -162,3 +164,49 @@ void print_second(pa* p, pa* q, void (*fp)(const char*, const char*)) {
     }
     
 }
+
+// ================================================ NORMAL ================================================== //
+
+
+void print_normal_left(const char* left, const char* _) {
+    
+    
+    char buf[BUFLEN];
+    strcpy(buf, left);
+    
+    int j = 0, len = (int)strlen(buf) - 1;
+    for (j = 0; j <= 52 - len ; ++j) { buf[len + j] = ' '; }
+    
+    printf("%s %s\n", "<", buf);
+    
+}
+
+void print_normal_right(const char* right, const char* _) {
+    
+    char buf[BUFLEN];
+    strcpy(buf, right);
+    
+    int j = 0, len = (int)strlen(buf) - 1;
+    for (j = 0; j <= 52 - len ; ++j) {
+        buf[len + j] = ' ';
+    }
+    
+    printf("%s %s\n", ">", buf);
+    
+}
+
+void line_check(const char* left, const char* right) {
+    
+    if (strcmp(left, right) == 0);
+    else { printf("< %s---\n> %s", left, right); }
+    
+}
+
+int line_number(const char* left, const char* right) {
+    
+    return 0;
+    
+}
+
+// ================================================ CONTEXT ================================================== //
+
