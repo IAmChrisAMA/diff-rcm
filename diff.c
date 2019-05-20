@@ -24,6 +24,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sys/stat.h>
+#include <time.h>
+
 #include "diff.h"
 #include "pa.h"
 
@@ -44,8 +47,8 @@ int main(int argc, const char* argv[]) {
         
     if (**argv != '-' || diffnormal == 1) { lineline(); }
 
-    if (showcontext)                      { context();  }
-    if (showunified)                      { unified();  }
+    if (showcontext)                      { context(files[0], files[1]);  }
+    if (showunified)                      { unified(files[0], files[1]);  }
 
     return 0;
 
@@ -141,7 +144,7 @@ void version(void) {
   printf(" ░░██████░██  ░██    ░██         ░███   ░░█████  ███ ░██ ░██    \n");
   printf("  ░░░░░░ ░░   ░░     ░░          ░░░     ░░░░░  ░░░  ░░  ░░      \n\n");
   printf("\n");
-  printf("\tv0.8 alpha | Smoking is bad for your health. <3\n\n");
+  printf("\tv1.0 GM | Well, that's all the time I've got.\n\n");
   printf("Copyright (C) 2019 | All Rights Reserved.\n");
   printf("Any unauthorized use or re-distribution of this code is permitted.\n\n");
   printf("\tChris Nutter\tWilliam McCarthy    Rasputin\n\n\n");
@@ -195,7 +198,7 @@ void lineline(void) {
                 q = pa_next(q);
                 qlast = q;
             }
-            print_check(p, q, line_check);
+            print_check(p, q, line_check_normal);
             
             p = pa_next(p);
             q = pa_next(q);
@@ -210,8 +213,8 @@ void lineline(void) {
 void sideside(const char* filename1, const char* filename2) {
     
     int foundmatch = 0;  pa* qlast = q;
-    if (*filename1 == *filename2) {
-        while (p != NULL && q != NULL) { print_check(p, q, print_both);
+    if (*filename1 == *filename2) {                                           // This allows printing of side-by-side with the same file contents.
+        while (p != NULL && q != NULL) { print_check(p, q, print_side_both);
         p = pa_next(p); }
         return;
     }
@@ -224,38 +227,126 @@ void sideside(const char* filename1, const char* filename2) {
         
         if (foundmatch) {
             while ((foundmatch = pa_equal(p, q)) == 0) {
-                print_check(q, NULL, print_right);
+                print_check(q, NULL, print_side_right);
                 q = pa_next(q);
                 qlast = q;
             }
             
-            if      (showleftcolumn) { print_check(p, q, print_left_paren);  }
+            if      (showleftcolumn) { print_check(p, q, print_left_paren);  }  // Checks if the parameters for side-by-side are filled.
             else if (suppresscommon) { print_check(p, q, print_no_common);   }
-            else                     { print_check(p, q, print_side_normal); }
+            else                     { print_check(p, q, print_side_default); }
             
             p = pa_next(p);
             q = pa_next(q);
         }
         
-        else { print_check(p, NULL, print_left);  p = pa_next(p); }
+        else { print_check(p, NULL, print_side_left);  p = pa_next(p); }
     }
     
-    while (q != NULL) { print_check(q, NULL, print_right);  q = pa_next(q); }
+    while (q != NULL) { print_check(q, NULL, print_side_right);  q = pa_next(q); }
     
 }
 
-void context(void) {}
-void unified(void) {}
+void context(const char* filename1, const char* filename2) {
+    
+    int foundmatch = 0; pa* qlast = q;
+    
+    struct stat filestat1;
+    struct stat filestat2;
+    stat(filename1, &filestat1);
+    stat(filename2, &filestat2);
+    
+    printf("*** %s  %s", filename1, ctime(&filestat1.st_mtime));
+    printf("--- %s  %s", filename2, ctime(&filestat2.st_mtime));
+    printf("***************\n");
+
+    // ========================= //
+
+    while (p != NULL) {
+        qlast = q; foundmatch = 0;
+        
+        while (q != NULL && (foundmatch = pa_equal(p, q)) == 0) { q = pa_next(q); }
+        q = qlast;
+        
+        if (foundmatch) {
+            while ((foundmatch = pa_equal(p, q)) == 0) {
+                
+                print_check(q, NULL, print_context_right);
+                q = pa_next(q);
+                qlast = q;
+            }
+            print_check(p, q, line_check_context);
+            
+            p = pa_next(p);
+            q = pa_next(q);
+        }
+        else { print_check(p, NULL, print_context_left);  p = pa_next(p); }
+    }
+    
+    while (q != NULL) { print_check(q, NULL, print_context_right);  q = pa_next(q); }
+    
+}
+
+void unified(const char* filename1, const char* filename2) {
+    
+    struct stat filestat1;
+    struct stat filestat2;
+    stat(filename1, &filestat1);
+    stat(filename2, &filestat2);
+    
+    printf("--- %s  %s", filename1, ctime(&filestat1.st_mtime));
+    printf("+++ %s  %s", filename2, ctime(&filestat2.st_mtime));
+    
+    // ========================= //
+    
+    int foundmatch = 0; pa* qlast = q;
+    
+    while (p != NULL) {
+        qlast = q; foundmatch = 0;
+        
+        while (q != NULL && (foundmatch = pa_equal(p, q)) == 0) { q = pa_next(q); }
+        q = qlast;
+        
+        if (foundmatch) {
+            while ((foundmatch = pa_equal(p, q)) == 0) {
+                
+                print_check(q, NULL, print_unified_right);
+                q = pa_next(q);
+                qlast = q;
+            }
+            print_check(p, q, line_check_unified);
+            
+            p = pa_next(p);
+            q = pa_next(q);
+        }
+        else { print_check(p, NULL, print_unified_left);  p = pa_next(p); }
+    }
+    
+    while (q != NULL) { print_check(q, NULL, print_unified_right);  q = pa_next(q); }
+    
+}
 
 void quiet(const char* filename1, const char* filename2) { if (identical(filename1, filename2) == 0) { printf("Files %s and %s differ.\n", filename1, filename2); } exit(0); }
 void loud (const char* filename1, const char* filename2) {
 
   if (*filename1 == *filename2 || (pa_equal(p, q) != 0)) { printf("Files %s and %s are identical.\n", filename1, filename2); }
   else if (showsidebyside)                               { sideside(files[0], files[1]); exit(0); }
-  else if (showcontext)                                  { context();  exit(0); }
-  else if (showunified)                                  { unified();  exit(0); }
+  else if (showcontext)                                  { context(files[0], files[1]);  exit(0); }
+  else if (showunified)                                  { unified(files[0], files[1]);  exit(0); }
   else                                                   { lineline(); exit(0); }
 
 }
 
 // ============================================================================= //
+
+
+
+
+
+
+
+
+
+
+
+// :P

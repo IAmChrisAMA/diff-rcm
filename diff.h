@@ -12,16 +12,6 @@
 #define HASHLEN 200
 #define BUFLEN 256
 
-// ================================================================ //
-
-/*
-    TODO: check line by line in a pagraph, using '|' for differences"); ----------------------- DONE
-    TODO: this starter code does not yet handle printing all of fin1's pagraphs."); ----------- DONE
-    TODO: handle the rest of diff's options");
-    TODO: fix lineline printing with no pameters");
-    TODO: implement multiple types of pameters\n");
-*/
-
 // ================================================================= //
 
 FILE *fin1, *fin2;
@@ -53,10 +43,10 @@ void ignore_case(void);
 
 void lineline(void);
 void sideside(const char* filename1, const char* filename2);
-void context (void);
-void unified (void);
+void context (const char* filename1, const char* filename2);
+void unified (const char* filename1, const char* filename2);
 
 void quiet(const char* filename1, const char* filename2);
-void loud(const char* filename1, const char* filename2);
+void loud (const char* filename1, const char* filename2);
 
 int identical(const char* filename1, const char* filename2);

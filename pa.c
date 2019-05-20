@@ -4,7 +4,7 @@
 
 #include "pa.h"
 
-// ============================================================================================================= //
+// =================================================== FILE STRUCTURE ===================================================== //
 
 FILE* openfile(const char* filename, const char* openflags) {
     
@@ -14,7 +14,7 @@ FILE* openfile(const char* filename, const char* openflags) {
     
 }
 
-// ============================================================================================================= //
+// ================================================== PARA STRUCTURE ====================================================== //
 
 pa* pa_make(char* base[], int filesize, int start, int stop) {
     
@@ -80,72 +80,7 @@ int pa_equal(pa* p, pa* q) {
     
 }
 
-// ============================================================================================================= //
-
-void sideside_type(const char* left, const char* right, int nocommon, int leftparen, char symbol) {
-    
-    char buf[BUFLEN];
-    
-    symbol = ((strcmp(left, right) == 0) ? symbol : '|');
-    size_t len = strlen(left);
-    
-    if(len > 0) { strncpy(buf, left, len); }
-    buf[len - 1] = '\0';
-    
-    if(symbol != '|' && nocommon == 1) { return; }
-    
-    printf("%-48s %c ", buf, symbol);
-    if (symbol == '|') { printf("%s", right); }
-    else               { printf("%s", (leftparen ? "\n" : right)); }
-    
-}
-
-// ============================================== SIDE-BY-SIDE ================================================ //
-
-void print_left_paren(const char* left, const char* right)  { sideside_type(left, right, 0, 1, '('); }
-void print_no_common(const char* left, const char* right)   { sideside_type(left, right, 1, 0, ' '); }
-void print_side_normal(const char* left, const char* right) { sideside_type(left, right, 0, 0, ' '); }
-
-void print_left(const char* left, const char* _) {
-    
-    char buf[BUFLEN];
-    strcpy(buf, left);
-    
-    int j = 0, len = (int)strlen(buf) - 1;
-    for (j = 0; j <= 48 - len ; ++j) { buf[len + j] = ' '; }
-    
-    buf[len + j++] = '<';
-    buf[len + j++] = '\0';
-    
-    printf("%s\n", buf);
-    
-}
-
-void print_right(const char* right, const char* _) {
-    
-    if (right == NULL) { return; }
-    printf("%50s %s", ">", right);
-    
-}
-
-void print_both(const char* left_right, const char* _) {
-    
-    char buf[BUFLEN];
-    size_t len = strlen(left_right);
-    
-    if (len > 0) { strncpy(buf, left_right, len); }
-    
-    buf[len - 1] = '\0';
-    printf("%-50s %s", buf, left_right);
-    
-}
-
-void print_check(pa* p, pa* q, void (*fp)(const char*, const char*)) {
-    
-    if (q == NULL) { print_first(p, (void (*)(const char*)) fp); }
-    else           { print_second(p, q, fp); }
-    
-}
+// =========================================== PRINT STRUCTURE ============================================ //
 
 void print_first(pa* p, void (*fp)(const char*)) {
     
@@ -162,6 +97,71 @@ void print_second(pa* p, pa* q, void (*fp)(const char*, const char*)) {
         j <= q->stop && j != q->filesize; ++i, ++j) {
         fp(p->base[i], q->base[j]);
     }
+    
+}
+
+void print_check(pa* p, pa* q, void (*fp)(const char*, const char*)) {
+    
+    if (q == NULL) { print_first(p, (void (*)(const char*)) fp); }
+    else           { print_second(p, q, fp); }
+    
+}
+
+// ============================================== SIDE-BY-SIDE ================================================ //
+
+void print_left_paren  (const char* left, const char* right) { sideside_type(left, right, 0, 1, '('); }
+void print_no_common   (const char* left, const char* right) { sideside_type(left, right, 1, 0, ' '); }
+void print_side_default(const char* left, const char* right) { sideside_type(left, right, 0, 0, ' '); }
+
+void print_side_left(const char* left, const char* _) {
+    
+    char buf[BUFLEN];
+    strcpy(buf, left);
+    
+    int j = 0, len = (int)strlen(buf) - 1;
+    for (j = 0; j <= 48 - len ; ++j) { buf[len + j] = ' '; }
+    
+    buf[len + j++] = '<';
+    buf[len + j++] = '\0';
+    
+    printf("%s\n", buf);
+    
+}
+
+void print_side_right(const char* right, const char* _) {
+    
+    if (right == NULL) { return; }
+    printf("%50s %s", ">", right);
+    
+}
+
+void print_side_both(const char* left_right, const char* _) {
+    
+    char buf[BUFLEN];
+    size_t len = strlen(left_right);
+    
+    if (len > 0) { strncpy(buf, left_right, len); }
+    
+    buf[len - 1] = '\0';
+    printf("%-50s %s", buf, left_right);
+    
+}
+
+void sideside_type(const char* left, const char* right, int nocommon, int leftparen, char symbol) {
+    
+    char buf[BUFLEN];
+    
+    symbol = ((strcmp(left, right) == 0) ? symbol : '|');
+    size_t len = strlen(left);
+    
+    if(len > 0) { strncpy(buf, left, len); }
+    buf[len - 1] = '\0';
+    
+    if(symbol != '|' && nocommon == 1) { return; }
+    
+    printf("%-48s %c ", buf, symbol);
+    if (symbol == '|') { printf("%s", right); }
+    else               { printf("%s", (leftparen ? "\n" : right)); }
     
 }
 
@@ -195,18 +195,102 @@ void print_normal_right(const char* right, const char* _) {
     
 }
 
-void line_check(const char* left, const char* right) {
+void line_check_normal(const char* left, const char* right) {
     
     if (strcmp(left, right) == 0);
     else { printf("< %s---\n> %s", left, right); }
     
 }
 
-int line_number(const char* left, const char* right) {
+int line_number_normal(const char* left, const char* right) {
     
+    // This does nothing and probably will stay that way. Sadly... Sorry. :/
     return 0;
     
 }
 
 // ================================================ CONTEXT ================================================== //
 
+void print_context_left(const char* left, const char* _) {
+    
+    
+    char buf[BUFLEN];
+    strcpy(buf, left);
+    
+    int j = 0, len = (int)strlen(buf) - 1;
+    for (j = 0; j <= 52 - len ; ++j) { buf[len + j] = ' '; }
+    
+    printf("%s %s\n", "*", buf);
+    
+}
+
+void print_context_right(const char* right, const char* _) {
+    
+    char buf[BUFLEN];
+    strcpy(buf, right);
+    
+    int j = 0, len = (int)strlen(buf) - 1;
+    for (j = 0; j <= 52 - len ; ++j) {
+        buf[len + j] = ' ';
+    }
+    
+    printf("%s %s\n", "-", buf);
+    
+}
+
+void line_check_context(const char* left, const char* right) {
+    
+    if (strcmp(left, right) == 0);
+    else { printf("! %s---\n! %s", left, right); }
+    
+}
+
+int line_number_context(const char* left, const char* right) {
+    
+    // This does nothing and probably will stay that way. Sadly... Sorry. :/
+    return 0;
+    
+}
+
+// ================================================ UNIFIED ================================================== //
+
+void print_unified_left(const char* left, const char* _) {
+    
+    
+    char buf[BUFLEN];
+    strcpy(buf, left);
+    
+    int j = 0, len = (int)strlen(buf) - 1;
+    for (j = 0; j <= 52 - len ; ++j) { buf[len + j] = ' '; }
+    
+    printf("%s %s\n", "<", buf);
+    
+}
+
+void print_unified_right(const char* right, const char* _) {
+    
+    char buf[BUFLEN];
+    strcpy(buf, right);
+    
+    int j = 0, len = (int)strlen(buf) - 1;
+    for (j = 0; j <= 52 - len ; ++j) {
+        buf[len + j] = ' ';
+    }
+    
+    printf("%s %s\n", ">", buf);
+    
+}
+
+void line_check_unified(const char* left, const char* right) {
+    
+    if (strcmp(left, right) == 0);
+    else { printf("< %s---\n> %s", left, right); }
+    
+}
+
+int line_number_unified(const char* left, const char* right) {
+    
+    // This does nothing and probably will stay that way. Sadly... Sorry. :/
+    return 0;
+    
+}
