@@ -7,9 +7,13 @@ Written by: Chris Nutter (building foundation), William McCarthy (initial struct
 
 
 For the most part it's pretty fairly accurate. Side-by-side, brief, and identical are _**flawless**_. ;)
+
 However normal, context, and unified are off. 
+
 They work in outputting differences but normal doesn't have line numbers.
+
 Context and unified work like normal but at least make awareness to the file date.
+
 Enjoy. Thanks again. Love you, Mom & Dad. - C
 
 
@@ -31,6 +35,7 @@ Mandatory arguments to long options are mandatory for short options too.
 	-v, --version		        output version information and exit
 
 Report bugs to: cdnutter@gmail.com
+
 diff-rcm homepage: <https://www.github.com/cdnutter/diff/>
 
 
