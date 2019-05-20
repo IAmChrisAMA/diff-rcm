@@ -6,11 +6,13 @@ v1.0 GM | Well, that's all the time I've got.
 Written by: Chris Nutter _(building foundation)_, William McCarthy _(initial struct)_, Rasputin _(inspiration)_
 
 
+
 For the most part it's pretty fairly accurate. Side-by-side, brief, and identical are _**flawless**_. ;)
 However normal, context, and unified are off. 
 They work in outputting differences but normal doesn't have line numbers.
 Context and unified work like normal but at least make awareness to the file date.
 Enjoy. Thanks again. Love you, Mom & Dad. - C
+
 
 
 Usage: diff-rcm [OPTION]... FILES
