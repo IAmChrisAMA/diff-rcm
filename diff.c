@@ -153,7 +153,7 @@ void help(void) {
   printf("\nUsage: diff-rcm [OPTION]... FILES\n");
   printf("Compare FILES line by line.\n\n");
   printf("Mandatory arguments to long options are mandatory for short options too.\n\n");
-  printf("\t    --normal\t\t        output a lineline diff (the default)\n");
+  printf("\t    --normal\t\t        output a normal diff (the default)\n");
   printf("\t-q, --brief\t\t        report only when files differ\n");
   printf("\t-s, --report-identical-files    report when two files are the same\n");
   printf("\t-c, -C NUM, --context[=NUM]     output NUM (default 3) lines of copied context\n");
