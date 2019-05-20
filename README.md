@@ -3,7 +3,7 @@
 
 v1.0 GM | Well, that's all the time I've got.
 
-Written by: Chris Nutter (building foundation), William McCarthy (initial struct), Rasputin (inspiration)
+Written by: Chris Nutter _(building foundation)_, William McCarthy _(initial struct)_, Rasputin _(inspiration)_
 
 
 For the most part it's pretty fairly accurate. Side-by-side, brief, and identical are _**flawless**_. ;)
