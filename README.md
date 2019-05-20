@@ -20,7 +20,7 @@ Compare FILES line by line.
 
 Mandatory arguments to long options are mandatory for short options too.
 
-	    --normal		        output a lineline diff (the default)
+	    --normal		        output a normal diff (the default)
 	-q, --brief		        report only when files differ
 	-s, --report-identical-files    report when two files are the same
 	-c, -C NUM, --context[=NUM]     output NUM (default 3) lines of copied context
