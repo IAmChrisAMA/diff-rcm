@@ -16,6 +16,7 @@ Enjoy. Thanks again. Love you, Mom & Dad. - C
 
 
 Usage: diff-rcm [OPTION]... FILES
+
 Compare FILES line by line.
 
 Mandatory arguments to long options are mandatory for short options too.
